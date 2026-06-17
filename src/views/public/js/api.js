@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'https://plataforma-sostenimiento.vercel.app//api';
 
 export const API = {
     getToken() { return localStorage.getItem('token'); },
