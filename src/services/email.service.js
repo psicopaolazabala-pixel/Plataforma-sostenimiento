@@ -43,7 +43,7 @@ export async function enviarNotificacionPorCorreo(usuarioId, titulo, mensaje) {
             </blockquote>
             <p>Por favor, ingresa al aplicativo para revisar los detalles del expediente o realizar las correcciones solicitadas si es necesario.</p>
             <div style="text-align: center; margin-top: 2rem;">
-              <a href="http://localhost:3000" style="background-color: #23893E; color: white; padding: 0.75rem 1.5rem; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Ir al Portal</a>
+              <a href="https://plataforma-sostenimiento.vercel.app/" style="background-color: #23893E; color: white; padding: 0.75rem 1.5rem; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Ir al Portal</a>
             </div>
           </div>
           <div style="background-color: #f4f4f4; color: #777; padding: 1rem; text-align: center; font-size: 0.8rem; border-top: 1px solid #e0e0e0;">
