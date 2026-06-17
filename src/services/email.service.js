@@ -5,8 +5,8 @@ import { supabaseAdmin } from '../config/supabase.js';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'tatianatrtiana@gmail.com', // <-- Reemplaza con tu correo
-    pass: 'dqov nhml aeyo hnkt'  // <-- Reemplaza con tu contraseña de aplicación de Google
+    user: 'psicopaola.zabala@gmail.com', // <-- Reemplaza con tu correo
+    pass: 'boud ntzr rtgi bihs'  // <-- Reemplaza con tu contraseña de aplicación de Google
   }
 });
 
@@ -27,7 +27,7 @@ export async function enviarNotificacionPorCorreo(usuarioId, titulo, mensaje) {
 
     // 2. Estructurar el diseño del correo electrónico con estilo tecnológico e institucional
     const mailOptions = {
-      from: '"Portal de Apoyo de Sostenimiento SENA" <tatianatrtiana@gmail.com>',
+      from: '"Portal de Apoyo de Sostenimiento SENA" <psicopaola.zabala@gmail.com>',
       to: correoAprendiz,
       subject: `📢 Portal SENA: ${titulo}`,
       html: `
