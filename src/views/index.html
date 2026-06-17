@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal Sostenimiento SENA - Ingreso</title>
+    <link rel="stylesheet" href="public/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container" style="max-width: 450px; margin-top: 10%;">
+        <div class="card">
+            <h2 style="text-align: center;">Portal de Apoyo de Sostenimiento</h2>
+            <p style="text-align: center; color: var(--electric-blue);">SENA - Bienestar al Aprendiz</p>
+            <div id="error-zone" style="color:red; margin-bottom:1rem;"></div>
+            <form id="login-form">
+                <label>Correo Institucional</label>
+                <input type="email" id="email" required style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+                
+                <label>Contraseña</label>
+                <input type="password" id="password" required style="width:100%; padding:0.5rem; margin-bottom:1.5rem;">
+                
+                <button type="submit" class="btn" style="width: 100%;">Iniciar Sesión</button>
+            </form>
+            <p style="margin-top: 1rem; text-align: center;">¿Eres aprendiz y no tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+        </div>
+    </div>
+    <script type="module">
+        import { API } from './public/js/api.js';
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            // 1. CRÍTICO: Detener inmediatamente la recarga nativa del formulario
+            e.preventDefault(); 
+            e.stopPropagation();
+
+            const errorZone = document.getElementById('error-zone');
+            errorZone.innerText = "Procesando autenticación...";
+            errorZone.style.color = "orange";
+
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                console.log("Intentando conectar con el backend para:", email);
+                
+                const res = await API.request('/auth/login', {
+                    method: 'POST',
+                    body: { email, password }
+                });
+
+                console.log("Respuesta recibida del servidor:", res);
+
+                if (!res || res.error) {
+                    errorZone.innerText = res?.error || "Error indefinido devuelto por el servidor.";
+                    errorZone.style.color = "red";
+                } else {
+                    errorZone.innerText = "¡Inicio de sesión correcto! Redireccionando...";
+                    errorZone.style.color = "green";
+                    
+                    // Guardar sesión
+                    API.setToken(res.token);
+                    
+                    // Validar redirección según rol
+                    if (res.rol === 'ADMINISTRADOR') {
+                        window.location.href = 'dashboard-admin.html';
+                    } else {
+                        window.location.href = 'dashboard-aprendiz.html';
+                    }
+                }
+            } catch (fatalError) {
+                // Captura errores de red, servidores apagados o problemas de importación
+                console.error("Error crítico atrapado en el submit:", fatalError);
+                errorZone.innerText = `Error de conexión: ${fatalError.message}`;
+                errorZone.style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>

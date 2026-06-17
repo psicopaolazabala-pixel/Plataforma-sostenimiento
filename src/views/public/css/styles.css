@@ -1,0 +1,182 @@
+:root {
+    --sena-green: #39A900;
+    --dark-blue: #00324D;
+    --electric-blue: #0076A8;
+    --bg-light: #F4F7F6;
+    --text-dark: #333333;
+    --border-color: #DDE3E0;
+}
+
+/* 1. Ajuste de Caja de Control y Fluidez Global */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* 2. Header Completamente Responsivo */
+header {
+    background-color: var(--dark-blue);
+    color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--sena-green);
+    flex-wrap: wrap; /* Permite que los elementos bajen si no caben */
+    gap: 1rem;
+}
+
+header div {
+    font-size: 1.1rem;
+}
+
+/* 3. Contenedor Elástico */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* 4. Tarjetas Flexibles */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    width: 100%; /* Ocupa el ancho disponible */
+}
+
+h1, h2, h3 { 
+    color: var(--dark-blue);
+    margin-bottom: 0.5rem;
+}
+
+/* Inputs y Selects Adaptables */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.btn {
+    background-color: var(--sena-green);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.btn:hover { background-color: #2e8600; }
+.btn-secondary { background-color: var(--electric-blue); }
+.btn-secondary:hover { background-color: #005c84; }
+
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-block;
+}
+.status-BORRADOR { background: #E0E0E0; color: #333; }
+.status-PENDIENTE_REVISION { background: #FFE082; color: #816100; }
+.status-DOCUMENTOS_CARGADOS { background: #BBDEFB; color: #0D47A1; }
+.status-APROBADA { background: #C8E6C9; color: #2E7D32; }
+.status-REQUIERE_CORRECCION { background: #FFCDD2; color: #C62828; }
+.status-CORREGIR { background: #FFCDD2; color: #C62828; }
+
+/* =========================================================================
+   5. TRUCO DE INGENIERÍA: Tablas Responsivas sin desbordarse
+   ========================================================================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th { background-color: #ECEFF1; color: var(--dark-blue); }
+
+/* Contenedor para scroll horizontal en tablas si la pantalla es muy chica */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+/* =========================================================================
+   6. VENTANA MODAL RESPONSIVA (ADMINISTRADOR)
+   ========================================================================= */
+#modal-evaluacion {
+    display: none; 
+    position: fixed; 
+    top: 5%; 
+    left: 5%; 
+    width: 90%; /* Toma casi toda la pantalla en móviles */
+    max-width: 900px; /* Pero no se estira de más en PC */
+    max-height: 90vh; 
+    overflow-y: auto; 
+    z-index: 1000; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+    border-top: 5px solid var(--sena-green);
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+/* =========================================================================
+   7. MEDIA QUERIES (Ajustes finos para teléfonos inteligentes)
+   ========================================================================= */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column; /* En celular el botón de salir baja */
+        text-align: center;
+    }
+    
+    header button {
+        width: 100%; /* Botón de cerrar sesión a lo ancho en celular */
+    }
+
+    .btn {
+        width: 100%; /* Los botones normales se vuelven de bloque completo */
+        margin-bottom: 0.5rem;
+    }
+
+    /* Transformar la visualización del modal de documentos en móviles */
+    #tabla-modal-documentos select,
+    #tabla-modal-documentos input {
+        width: 100%;
+        margin-left: 0 !important;
+        margin-top: 0.5rem;
+    }
+}

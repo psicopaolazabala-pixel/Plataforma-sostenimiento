@@ -1,0 +1,33 @@
+portal-sostenimiento/
+├── .env
+├── package.json
+├── server.js
+├── src/
+│   ├── config/
+│   │   └── supabase.js          # Inicialización del cliente Supabase Admin/Client
+│   ├── middlewares/
+│   │   ├── auth.middleware.js   # Validación de JWT y sesión activa
+│   │   └── role.middleware.js   # Restricción de acceso según rol (Aprendiz/Admin)
+│   ├── models/
+│   │   # Abstracciones de consultas a Supabase si se requiere lógica compleja
+│   ├── controllers/
+│   │   ├── auth.controller.js   # Registro, login y logout
+│   │   ├── apprentice.controller.js # Perfil, carga de archivos y notificaciones
+│   │   └── admin.controller.js      # Revisión, estados, observaciones e historial
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── apprentice.routes.js
+│   │   └── admin.routes.js
+│   └── views/                   # Frontend (HTML, CSS, JS estáticos)
+│       ├── public/
+│       │   ├── css/
+│       │   │   └── styles.css   # Estilos globales unificados
+│       │   └── js/
+│       │       └── api.js       # Cliente HTTP centralizado (fetch)
+│       ├── index.html           # Login / Acceso principal
+│       ├── registro.html        # Registro de Aprendices
+│       ├── dashboard-aprendiz.html
+│       ├── dashboard-admin.html
+│       └── js/
+│           ├── dashboard-aprendiz.js  # Lógica reactiva del aprendiz
+│           └── dashboard-admin.js     # Lógica reactiva del administrador

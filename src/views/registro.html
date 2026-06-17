@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Sostenimiento SENA - Registro de Aprendiz</title>
+    <link rel="stylesheet" href="public/css/styles.css">
+</head>
+<body>
+    <div class="container" style="max-width: 550px; margin: 2rem auto;">
+        <div class="card">
+            <h2 style="text-align: center; color: var(--dark-blue);">Registro de Aspirante</h2>
+            <p style="text-align: center; color: var(--electric-blue); margin-bottom: 1.5rem;">Formulario de Inscripción - Apoyo de Sostenimiento</p>
+            
+            <!-- Zona Dinámica para Alertas de Error o Éxito -->
+            <div id="alert-zone" style="padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; display: none; font-weight: bold; text-align: center;"></div>
+            
+            <form id="registro-form">
+                <label style="font-weight: bold; color: var(--dark-blue);">Nombre Completo</label>
+                <input type="text" id="nombreCompleto" placeholder="Ej: Juan Pérez" required>
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Documento de Identidad</label>
+                <input type="text" id="documentoIdentidad" placeholder="Cédula o Tarjeta de Identidad" required>
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Número de Celular</label>
+                <input type="text" id="celular" placeholder="Ej: 3123456789" required>
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Ficha de Caracterización</label>
+                <input type="text" id="ficha" placeholder="Ej: 2711412" required>
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Programa de Formación</label>
+                <input type="text" id="programa" placeholder="Ej: Análisis y Desarrollo de Software (ADSO)" required>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Correo Electrónico Institucional</label>
+                <input type="email" id="email" placeholder="usuario@gmai.com o correo.com" required>
+                
+                <label style="font-weight: bold; color: var(--dark-blue);">Contraseña de Acceso (Mínimo 6 caracteres)</label>
+                <input type="password" id="password" placeholder="Crea una contraseña segura" minlength="6" required>
+                
+                <button type="submit" id="btn-registrar" class="btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">
+                    📝 Completar Registro de Cuenta
+                </button>
+            </form>
+            
+            <p style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem;">
+                ¿Ya tienes una cuenta registrada? <a href="index.html" style="color: var(--electric-blue); font-weight: bold; text-decoration: none;">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Lógica del Cliente con Inyección al Túnel MVC del Backend -->
+    <script type="module">
+        import { API } from './public/js/api.js';
+
+        document.getElementById('registro-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const alertZone = document.getElementById('alert-zone');
+            const btnRegistrar = document.getElementById('btn-registrar');
+
+            // Captura limpia de los valores del formulario
+            const payload = {
+                nombreCompleto: document.getElementById('nombreCompleto').value.trim(),
+                documentoIdentidad: document.getElementById('documentoIdentidad').value.trim(),
+                celular: document.getElementById('celular').value.trim(),
+                ficha: document.getElementById('ficha').value.trim(),
+                programa: document.getElementById('programa').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            };
+
+            // Animación de espera
+            alertZone.style.display = 'block';
+            alertZone.innerText = "⏳ Comunicándose con Supabase Auth...";
+            alertZone.style.backgroundColor = '#E3F2FD';
+            alertZone.style.color = '#0D47A1';
+            btnRegistrar.disabled = true;
+
+            try {
+                // Enviar petición al endpoint del backend que creamos en el bloque inicial
+                const res = await API.request('/auth/signup', {
+                    method: 'POST',
+                    body: payload
+                });
+
+                if (res.error) {
+                    // Si el backend o Supabase rechazan el registro (Ej: Correo ya registrado)
+                    alertZone.innerText = `❌ Error: ${res.error}`;
+                    alertZone.style.backgroundColor = '#FFCDD2';
+                    alertZone.style.color = '#B71C1C';
+                    btnRegistrar.disabled = false;
+                } else {
+                    // Registro exitoso en la base de datos de Auth y de Perfiles transaccionales
+                    alertZone.innerText = "🎉 ¡Registro exitoso! Redireccionando al inicio de sesión...";
+                    alertZone.style.backgroundColor = '#C8E6C9';
+                    alertZone.style.color = '#1B5E20';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2500);
+                }
+
+            } catch (err) {
+                console.error("Error fatal en el submit de registro:", err);
+                alertZone.innerText = `❌ Error de red: No se pudo contactar al servidor.`;
+                alertZone.style.backgroundColor = '#FFCDD2';
+                alertZone.style.color = '#B71C1C';
+                btnRegistrar.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

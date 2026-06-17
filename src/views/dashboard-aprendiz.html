@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Aprendiz - Apoyo Sostenimiento</title>
+    <link rel="stylesheet" href="public/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header>
+        <div><strong>Portal Sostenimiento SENA</strong> - Módulo Aprendiz</div>
+        <button id="logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+    </header>
+
+    <div class="container">
+        <div class="card" style="background-color: #E1F5FE;">
+            <h3>🔔 Notificaciones Recientes</h3>
+            <div id="lista-notificaciones">Cargando alertas...</div>
+        </div>
+
+        <div class="card">
+            <h2>Mi Postulación: <span id="estado-postulacion" class="status-badge">...</span></h2>
+            <p>Observaciones del Evaluador: <span id="obs-generales" style="font-style: italic;">Ninguna</span></p>
+        </div>
+
+        <div class="card">
+            <h3>Documentación Requerida (Archivos PDF max. 5MB)</h3>
+            
+            <form id="upload-form">
+                <input type="hidden" id="solicitud-id">
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="tipo-doc" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--dark-blue);">1. Selecciona el Tipo de Documento:</label>
+                    <select id="tipo-doc" style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); background-color: #fff; font-size: 1rem;">
+                        <option value="Documento de Identidad">Documento de Identidad (Cédula/TI)</option>
+                        <option value="Certificado Ficha Matricula">Certificado de Matrícula (Ficha)</option>
+                        <option value="Certificado Sisben">Certificado Sisbén o Vulnerabilidad</option>
+                    </select>
+                </div>
+
+                <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--dark-blue);">2. Carga tu archivo PDF:</label>
+                
+                <div id="drop-zone" style="border: 2px dashed var(--electric-blue); border-radius: 8px; background-color: #F0F8FF; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative;">
+                    <div id="drop-zone-content">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">📄</span>
+                        <p style="margin: 0; font-size: 1.1rem; color: var(--dark-blue); font-weight: 500;">
+                            <strong>Arrastra y suelta tu archivo PDF aquí</strong> o haz clic para explorar
+                        </p>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666;">Solo se admiten archivos en formato PDF (Máx. 5MB)</p>
+                    </div>
+                    
+                    <div id="file-preview" style="display: none; font-size: 1.1rem; font-weight: bold; color: var(--sena-green);">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">✅</span>
+                        <span id="selected-file-name">archivo.pdf</span>
+                        <button type="button" id="change-file-btn" style="display: block; margin: 0.75rem auto 0 auto; background: none; border: none; color: #C62828; cursor: pointer; font-weight: bold; text-decoration: underline;">Quitar archivo</button>
+                    </div>
+
+                    <input type="file" id="file-input" accept="application/pdf" style="display: none;" required>
+                </div>
+
+                <button type="submit" id="submit-upload-btn" class="btn" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem; display: none;">
+                    🚀 Subir / Reemplazar Documento Seleccionado
+                </button>
+            </form>
+
+            <div class="table-responsive">
+                <table id="tabla-docs">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Documento</th>
+                            <th>Estado de Revisión</th>
+                            <th>Observaciones Específicas</th>
+                            <th>Fecha de Actualización</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/dashboard-aprendiz.js"></script>
+</body>
+</html>
