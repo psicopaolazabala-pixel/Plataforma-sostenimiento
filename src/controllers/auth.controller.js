@@ -150,7 +150,7 @@ export async function recoverPassword(req, res) {
     }
 
     // Despachar únicamente el correo electrónico con tu Nodemailer personalizado
-    const enlaceRecuperacion = `http://localhost:3000/restablecer-password.html?token=${tokenUnico}`;
+    const enlaceRecuperacion = `https://plataforma-sostenimiento.vercel.app/restablecer-password.html?token=${tokenUnico}`;
     const mensajeHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
         <div style="background-color: #0076A8; color: white; padding: 1.5rem; text-align: center;">
