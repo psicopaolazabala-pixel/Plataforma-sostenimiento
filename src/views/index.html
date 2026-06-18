@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,6 +19,10 @@
                 
                 <label>Contraseña</label>
                 <input type="password" id="password" required style="width:100%; padding:0.5rem; margin-bottom:1.5rem;">
+
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="#" id="link-recuperar" style="color: #0076A8; font-size: 0.9rem; text-decoration: none;">¿Olvidaste tu contraseña?</a>
+                </div>
                 
                 <button type="submit" class="btn" style="width: 100%;">Iniciar Sesión</button>
             </form>
@@ -71,6 +76,35 @@
                 console.error("Error crítico atrapado en el submit:", fatalError);
                 errorZone.innerText = `Error de conexión: ${fatalError.message}`;
                 errorZone.style.color = "red";
+            }
+        });
+
+        document.getElementById('link-recuperar').addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const email = prompt("Por favor, ingresa tu correo electrónico institucional para enviarte el enlace de recuperación:");
+            
+            if (!email) return; // Si cancela o lo deja vacío, no hace nada
+
+            if (email.trim() === "") {
+                alert("Debes ingresar un correo válido.");
+                return;
+            }
+
+            try {
+                // Golpeamos el endpoint que acabamos de crear en Express
+                const res = await API.request('/auth/recover-password', {
+                    method: 'POST',
+                    body: { email: email.trim() }
+                });
+
+                if (res.error) {
+                    alert(`❌ No se pudo procesar: ${res.error}`);
+                } else {
+                    alert(`🎉 ¡Listo!\n${res.message}`);
+                }
+            } catch (err) {
+                alert("❌ Error al comunicar con el servidor de autenticación.");
             }
         });
     </script>
