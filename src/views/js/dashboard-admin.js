@@ -63,18 +63,41 @@ function renderizarTablaFiltrada(estadoFiltro) {
 function configurarBotonesAccion() {
     document.querySelectorAll('.btn-evaluar').forEach(btn => {
         btn.addEventListener('click', async (e) => {
-            solicitudActualId = e.target.getAttribute('data-id');
-            aprendizActualId = e.target.getAttribute('data-aprendiz');
-            const nombre = e.target.getAttribute('data-nombre');
+            solicitudActualId = e.target.getAttribute('data-id'); //
+            aprendizActualId = e.target.getAttribute('data-aprendiz'); //
+            const nombre = e.target.getAttribute('data-nombre'); //
 
-            document.getElementById('modal-nombre-aprendiz').innerText = nombre;
+            document.getElementById('modal-nombre-aprendiz').innerText = nombre; //
             
+            // =========================================================================
+            // 🚀 PERSISTENCIA EN EL DICTAMEN GENERAL (REPOSITORIO EN MEMORIA)
+            // =========================================================================
+            // Buscamos la solicitud activa dentro del array global para recuperar su historial
+            const solicitudEnCurso = todasLasSolicitudes.find(sol => sol.id == solicitudActualId);
+
+            if (solicitudEnCurso) {
+                console.log(`📋 [DEBUG DICTAMEN] Recuperando estado previo: ${solicitudEnCurso.estado}`);
+                
+                // 1. Sincronizar el selector de Estado Global
+                const selectGlobal = document.getElementById('modal-estado-global');
+                if (selectGlobal) {
+                    selectGlobal.value = solicitudEnCurso.estado || 'PENDIENTE_REVISION';
+                }
+
+                // 2. Sincronizar el cuadro de texto de Observaciones Generales
+                const txtObservaciones = document.getElementById('modal-obs-globales');
+                if (txtObservaciones) {
+                    txtObservaciones.value = solicitudEnCurso.observaciones_generales || '';
+                }
+            }
+            // =========================================================================
+
             // Cargar los documentos asociados a esta solicitud en tiempo real
-            await cargarDocumentosEnModal(solicitudActualId);
+            await cargarDocumentosEnModal(solicitudActualId); //
 
             // Mostrar el modal y el fondo oscuro
-            document.getElementById('modal-evaluacion').style.display = 'block';
-            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('modal-evaluacion').style.display = 'block'; //
+            document.getElementById('modal-overlay').style.display = 'block'; //
         });
     });
 }
