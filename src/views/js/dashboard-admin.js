@@ -103,20 +103,23 @@ function configurarBotonesAccion() {
 }
 
 async function cargarDocumentosEnModal(solicitudId) {
-    const documentos = await API.request(`/admin/application/${solicitudId}/documents`);
-    documentosActualesModal = documentos; // <--- Guarda los archivos en memoria para el ZIP
+    const documentos = await API.request(`/admin/application/${solicitudId}/documents`); //
+    documentosActualesModal = documentos; //
     
-    const tbody = document.querySelector('#tabla-modal-documentos tbody');
-    tbody.innerHTML = '';
+    const tbody = document.querySelector('#tabla-modal-documentos tbody'); //
+    tbody.innerHTML = ''; //
 
     if (documentos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:grey;">El aprendiz no ha cargado archivos en esta postulación.</td></tr>`;
-        document.getElementById('btn-descargar-zip').style.display = 'none';
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:grey;">El aprendiz no ha cargado archivos en esta postulación.</td></tr>`;
+        document.getElementById('btn-descargar-zip').style.display = 'none'; //
         return;
     }
 
     documentos.forEach(doc => {
         const tr = document.createElement('tr');
+        // 🚀 Agregamos un ID a la fila para poder removerla del HTML reactivamente
+        tr.id = `fila-documento-${doc.id}`;
+
         tr.innerHTML = `
             <td><strong>${doc.nombre_tipo}</strong></td>
             <td><span class="status-badge status-${doc.estado}">${doc.estado}</span></td>
@@ -133,36 +136,84 @@ async function cargarDocumentosEnModal(solicitudId) {
                 <input type="text" class="input-obs-doc" data-id="${doc.id}" value="${doc.observacion_especifica || ''}" placeholder="Motivo de rechazo/obs" style="width:120px; padding:0.3rem; margin-left:5px;">
                 <button class="btn btn-actualizar-doc" data-id="${doc.id}" style="padding:0.3rem; font-size:0.8rem; background:#0076A8;">💾</button>
             </td>
+            <td style="text-align: center;">
+                <button type="button" class="btn-eliminar-documento" data-id="${doc.id}" 
+                        style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #D32F2F; padding: 4px;" 
+                        title="Eliminar permanentemente">
+                    🗑️
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
 
     // === CONTROL DEL BOTÓN ZIP ===
-    // Valida si absolutamente TODOS los documentos tienen el estado 'APROBADO'
-    const todosAprobados = documentos.every(doc => doc.estado === 'APROBADO');
-    const btnZip = document.getElementById('btn-descargar-zip');
-    
+    const todosAprobados = documentos.every(doc => doc.estado === 'APROBADO'); //
+    const btnZip = document.getElementById('btn-descargar-zip'); //
     if (btnZip) {
-        btnZip.style.display = todosAprobados ? 'inline-block' : 'none';
+        btnZip.style.display = todosAprobados ? 'inline-block' : 'none'; //
     }
 
-    // Configurar eventos individuales para los botones de guardar de cada documento
+    // Configurar eventos individuales para calificar documentos (Existente)
     tbody.querySelectorAll('.btn-actualizar-doc').forEach(btn => {
         btn.addEventListener('click', async (e) => {
-            const docId = btn.getAttribute('data-id');
-            const fila = btn.parentElement;
-            const estado = fila.querySelector('.select-estado-doc').value;
-            const observacion = fila.querySelector('.input-obs-doc').value;
+            const docId = btn.getAttribute('data-id'); //
+            const fila = btn.parentElement; //
+            const estado = fila.querySelector('.select-estado-doc').value; //
+            const observacion = fila.querySelector('.input-obs-doc').value; //
 
-            const res = await API.request('/admin/document/review', {
-                method: 'POST',
-                body: { documentoId: docId, estado, observacion, aprendizId: aprendizActualId }
+            const res = await API.request('/admin/document/review', { //
+                method: 'POST', //
+                body: { documentoId: docId, estado, observacion, aprendizId: aprendizActualId } //
             });
             
-            alert(res.message || "Estado del documento actualizado.");
+            alert(res.message || "Estado del documento actualizado."); //
+            await cargarDocumentosEnModal(solicitudActualId); //
+            await cargarPostulaciones();  //
+        });
+    });
+
+    // =========================================================================
+    // 🧠 NUEVO ESCUCHADOR: PROCESAR EL BORRADO EN CALIENTE
+    // =========================================================================
+    tbody.querySelectorAll('.btn-eliminar-documento').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const docId = btn.getAttribute('data-id');
             
-            await cargarDocumentosEnModal(solicitudActualId);
-            await cargarPostulaciones(); 
+            const seguro = confirm("⚠️ ¿Estás completamente seguro de eliminar este archivo?\nSe borrará de forma física en Supabase y no se podrá recuperar.");
+            if (!seguro) return;
+
+            btn.innerText = "⏳";
+            btn.disabled = true;
+
+            try {
+                // Consumimos nuestra nueva ruta DELETE pasándole el ID en la URL
+                const respuesta = await API.request(`/admin/document/${docId}`, {
+                    method: 'DELETE'
+                });
+
+                if (respuesta && respuesta.error) {
+                    alert(`❌ No se pudo completar la operación: ${respuesta.error}`);
+                    btn.innerText = "🗑️";
+                    btn.disabled = false;
+                } else {
+                    alert(respuesta.message || "Documento removido.");
+                    
+                    // Remoción reactiva: Desvanece la fila del HTML sin recargar el modal
+                    const filaTr = document.getElementById(`fila-documento-${docId}`);
+                    if (filaTr) filaTr.remove();
+
+                    // Si borró el último archivo que quedaba, pintamos el aviso de vacío
+                    if (tbody.querySelectorAll('tr').length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:grey;">El aprendiz no ha cargado archivos en esta postulación.</td></tr>`;
+                        if (btnZip) btnZip.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                alert("❌ Error de red al comunicarse con el módulo de eliminación.");
+                btn.innerText = "🗑️";
+                btn.disabled = false;
+            }
         });
     });
 }
