@@ -296,3 +296,58 @@ export async function createNewAdmin(req, res) {
     return res.status(500).json({ error: `Fallo interno del servidor: ${err.message}` });
   }
 }
+
+// 4. ELIMINAR UN DOCUMENTO INDIVIDUAL DEL EXPEDIENTE
+export async function deleteDocument(req, res) {
+  const { id } = req.params;
+
+  try {
+    console.log(`\n==================================================`);
+    console.log(`🗑️ [DEBUG ELIMINACIÓN] Solicitud para borrar documento ID: ${id}`);
+
+    // 1. Buscar la ruta del Storage antes de borrar para no dejar huérfano el archivo físico
+    const { data: doc, error: fetchError } = await supabaseAdmin
+      .from('documentos')
+      .select('storage_path, nombre_tipo')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError || !doc) {
+      console.error("❌ No se encontró el documento especificado.");
+      return res.status(404).json({ error: 'El documento no existe en el expediente.' });
+    }
+
+    // 2. Remover archivo físico de Supabase Storage
+    if (doc.storage_path) {
+      const { error: storageError } = await supabaseAdmin.storage
+        .from('documentos-sostenimiento') // Mismo bucket de visualización
+        .remove([doc.storage_path]);
+
+      if (storageError) {
+        console.warn("⚠️ Alerta en Storage (Posiblemente el archivo físico no existía):", storageError.message);
+      } else {
+        console.log(`✅ Archivo eliminado del Storage: ${doc.storage_path}`);
+      }
+    }
+
+    // 3. Eliminar el registro en PostgreSQL
+    const { error: dbError } = await supabaseAdmin
+      .from('documentos')
+      .delete()
+      .eq('id', id);
+
+    if (dbError) {
+      console.error("❌ Error al eliminar registro en Postgres:", dbError.message);
+      return res.status(400).json({ error: dbError.message });
+    }
+
+    console.log(`🎉 [ÉXITO] Documento "${doc.nombre_tipo}" purgado completamente.`);
+    console.log(`==================================================\n`);
+
+    return res.status(200).json({ message: 'Documento eliminado exitosamente del expediente.' });
+
+  } catch (err) {
+    console.error("💥 Error crítico en deleteDocument:", err);
+    return res.status(500).json({ error: 'Fallo interno al procesar la eliminación.' });
+  }
+}
