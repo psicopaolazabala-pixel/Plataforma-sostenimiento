@@ -15,6 +15,6 @@ router.get('/application/:id/history', getAuditHistory);
 router.get('/application/:solicitudId/documents', getApplicationDocuments);
 router.get('/dashboard/stats', getDashboardStats);
 router.post('/create-admin', createNewAdmin);
-router.post('/document/:id', deleteDocument);
+router.delete('/document/:id', deleteDocument);
 
 export default router;
