@@ -21,8 +21,22 @@ export async function getDashboard(req, res) {
     // Obtener los documentos anexados a la solicitud
     const { data: documentos } = await supabaseAdmin.from('documentos').select('*').eq('solicitud_id', solicitud.id);
 
-    res.status(200).json({ perfil, solicitud, documentos });
+    // 🚀 NUEVA ACCIÓN DE SEGURIDAD: Generar URLs firmadas de visualización válidas por 5 minutos (300 seg)
+    const documentosConUrl = await Promise.all((documentos || []).map(async (doc) => {
+      const { data: signData, error: signError } = await supabaseAdmin.storage
+        .from('documentos-sostenimiento')
+        .createSignedUrl(doc.storage_path, 300);
+
+      return {
+        ...doc,
+        url_visualizacion: signError ? null : signData.signedUrl
+      };
+    }));
+
+    // Retornamos el payload con los documentos enriquecidos con su URL temporal
+    res.status(200).json({ perfil, solicitud, documentos: documentosConUrl });
   } catch (err) {
+    console.error("[Backend] Error en Dashboard Aprendiz:", err);
     res.status(500).json({ error: 'Fallo al procesar los datos del Dashboard.' });
   }
 }
