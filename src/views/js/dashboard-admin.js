@@ -188,7 +188,7 @@ async function cargarDocumentosEnModal(solicitudId) {
 
             try {
                 // Consumimos nuestra nueva ruta DELETE pasándole el ID en la URL
-                const respuesta = await API.request(`/admin/document/${docId}`, {
+                const respuesta = await API.request(`/document/${docId}`, {
                     method: 'DELETE'
                 });
 
