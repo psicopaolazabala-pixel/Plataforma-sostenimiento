@@ -1,29 +1,84 @@
-import { API } from '../public/js/api.js';
+import { API } from '../public/js/api.js'; //
 
 // Variables globales del módulo
-let solicitudActualId = null;
-let aprendizActualId = null;
-let todasLasSolicitudes = []; // <--- NUEVA: Guarda la copia fiel de los datos del servidor
-// Variable global dentro del archivo para almacenar los metadatos temporales del modal activo
-let documentosActualesModal = [];
+let solicitudActualId = null; //[cite: 11]
+let aprendizActualId = null; //[cite: 11]
+let todasLasSolicitudes = []; //[cite: 11]
+let documentosActualesModal = []; //[cite: 11]
 
 
 async function cargarPostulaciones() {
-    // 1. Descargar las solicitudes reales de la base de datos
-    todasLasSolicitudes = await API.request('/admin/applications');
+    // 1. Descargar las solicitudes reales de la base de datos[cite: 11]
+    todasLasSolicitudes = await API.request('/admin/applications'); //[cite: 11]
     
-    // 2. Escuchar los cambios del selector de filtro (Se configura una sola vez)
-    const selectorFiltro = document.getElementById('filtro-estado');
+    // 2. Escuchar los cambios del selector de filtro por estado[cite: 11]
+    const selectorFiltro = document.getElementById('filtro-estado'); //[cite: 11]
     if (selectorFiltro && !selectorFiltro.dataset.listenerActivo) {
-        selectorFiltro.addEventListener('change', (e) => {
-            const estadoSeleccionado = e.target.value;
-            renderizarTablaFiltrada(estadoSeleccionado);
-        });
-        selectorFiltro.dataset.listenerActivo = "true"; // Evita duplicar eventos al refrescar
+        selectorFiltro.addEventListener('change', ejecutarFiltroCombinado);
+        selectorFiltro.dataset.listenerActivo = "true"; //[cite: 11]
     }
 
-    // 3. Pintar todos los registros por defecto al cargar la página
-    renderizarTablaFiltrada('TODOS');
+    // 🚀 3. Escuchar la escritura en tiempo real de la barra de búsqueda
+    const buscadorInput = document.getElementById('buscador-global');
+    if (buscadorInput && !buscadorInput.dataset.listenerActivo) {
+        // 'input' detecta inmediatamente cada letra que digita o borra el usuario
+        buscadorInput.addEventListener('input', ejecutarFiltroCombinado);
+        buscadorInput.dataset.listenerActivo = "true";
+    }
+
+    // 4. Pintar los registros iniciales aplicando los filtros[cite: 11]
+    ejecutarFiltroCombinado();
+}
+
+// 🚀 NUEVA FUNCIÓN MAESTRA: Aplica los filtros cruzados en la memoria del navegador
+function ejecutarFiltroCombinado() {
+    const estadoFiltro = document.getElementById('filtro-estado').value;
+    const textoBusqueda = document.getElementById('buscador-global').value.toLowerCase().trim();
+
+    const tbody = document.querySelector('#tabla-admisiones tbody'); //[cite: 11]
+    tbody.innerHTML = ''; //[cite: 11]
+
+    // Filtrar la colección global 'todasLasSolicitudes' bajo ambas condiciones[cite: 11]
+    const solicitudesFiltradas = todasLasSolicitudes.filter(sol => {
+        // Condición A: Coincidencia de Estado[cite: 11]
+        const cumpleEstado = (estadoFiltro === 'TODOS' || sol.estado === estadoFiltro); //[cite: 11]
+
+        // Condición B: Coincidencia de Texto (Nombre, Ficha o Revisor asignado)
+        const nombreCompleto = (sol.perfiles?.nombre_completo || '').toLowerCase(); //[cite: 11]
+        const numeroFicha = (sol.perfiles?.ficha_caracterizacion || '').toString(); //[cite: 11]
+        const ultimoEvaluador = (sol.ultima_observacion_por || '').toLowerCase(); //[cite: 11]
+
+        const cumpleTexto = !textoBusqueda || 
+                            nombreCompleto.includes(textoBusqueda) || 
+                            numeroFicha.includes(textoBusqueda) || 
+                            ultimoEvaluador.includes(textoBusqueda);
+
+        return cumpleEstado && cumpleTexto;
+    });
+
+    // Control si el filtro combinado no arroja filas[cite: 11]
+    if (solicitudesFiltradas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:grey; padding: 2rem;">No se encontraron postulaciones con los criterios ingresados.</td></tr>`; //[cite: 11]
+        return;
+    }
+
+    // Dibujar los resultados coincidentes[cite: 11]
+    solicitudesFiltradas.forEach(sol => {
+        const revisor = sol.ultima_observacion_por || '<em>Sin asignar</em>'; //[cite: 11]
+
+        const tr = document.createElement('tr'); //[cite: 11]
+        tr.innerHTML = `
+            <td><strong>${sol.perfiles.nombre_completo}</strong></td>
+            <td>${sol.perfiles.documento_identidad}</td>
+            <td>${sol.perfiles.ficha_caracterizacion}</td>
+            <td><span class="status-badge status-${sol.estado}">${sol.estado}</span></td>
+            <td><span style="font-size:0.9rem; color:#555;">${revisor}</span></td>
+            <td><button class="btn btn-evaluar" data-id="${sol.id}" data-aprendiz="${sol.perfiles.id}" data-nombre="${sol.perfiles.nombre_completo}">Evaluar Expediente</button></td>
+        `; //[cite: 11]
+        tbody.appendChild(tr); //[cite: 11]
+    });
+
+    configurarBotonesAccion(); //[cite: 11]
 }
 
 // NUEVA FUNCIÓN: Se encarga del filtrado reactivo en memoria
