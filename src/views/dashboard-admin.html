@@ -52,16 +52,33 @@
     </div>
 
     <div class="container">
-        <div class="card">
+        <!-- 🚀 MODIFICADO: Filtros alineados en un bloque flexible combinado -->
+        <div class="card" style="border-top: 4px solid var(--electric-blue);">
             <h3>Filtros de Control de Trámites</h3>
-            <select id="filtro-estado" style="padding: 0.5rem; width: 100%; max-width: 300px; margin-bottom: 0;">
-                <option value="TODOS">Ver Todos los Estados</option>
-                <option value="DOCUMENTOS_CARGADOS">DOCUMENTOS_CARGADOS</option>
-                <option value="PENDIENTE_REVISION">PENDIENTE_REVISION</option>
-                <option value="REQUIERE_CORRECCION">REQUIERE_CORRECCION</option>
-                <option value="APROBADA">APROBADA</option>
-                <option value="RECHAZADA">RECHAZADA</option>
-            </select>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                
+                <!-- Selector de Estado Existente -->
+                <div style="flex: 1; min-width: 220px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.3rem; font-size: 0.9rem;">Filtrar por Estado:</label>
+                    <select id="filtro-estado" style="padding: 0.5rem; width: 100%; margin-bottom: 0; box-sizing: border-box;">
+                        <option value="TODOS">Ver Todos los Estados</option>
+                        <option value="DOCUMENTOS_CARGADOS">DOCUMENTOS_CARGADOS</option>
+                        <option value="PENDIENTE_REVISION">PENDIENTE_REVISION</option>
+                        <option value="REQUIERE_CORRECCION">REQUIERE_CORRECCION</option>
+                        <option value="APROBADA">APROBADA</option>
+                        <option value="RECHAZADA">RECHAZADA</option>
+                    </select>
+                </div>
+
+                <!-- 🚀 NUEVO: Entrada de texto para búsqueda general por coincidencia -->
+                <div style="flex: 2; min-width: 280px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.3rem; font-size: 0.9rem;">Buscador General:</label>
+                    <input type="text" id="buscador-global" 
+                           placeholder="Buscar por nombre de aprendiz, ficha o último evaluador..." 
+                           style="padding: 0.5rem; width: 100%; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; height: 38px;">
+                </div>
+
+            </div>
         </div>
 
         <div class="card">
