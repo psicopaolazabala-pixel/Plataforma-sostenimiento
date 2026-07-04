@@ -58,9 +58,24 @@ export async function updateProfile(req, res) {
 }
 
 export async function uploadDocument(req, res) {
-  const { tipoDocumento, solicitudId } = req.body;
-  const archivo = req.file;
+  // 🚀 VALIDACIÓN CRÍTICA: Comprobar primero si la convocatoria está congelada
+  try {
+    const { data: config } = await supabaseAdmin
+      .from('configuracion_sistema')
+      .select('convocatoria_activa')
+      .eq('id', 1)
+      .single();
 
+    if (config && !config.convocatoria_activa) {
+      return res.status(403).json({ error: 'Operación denegada: La convocatoria de apoyos de sostenimiento ha cerrado.' });
+    }
+  } catch (e) {
+    console.error("Error al validar bypass de convocatoria cerrada.");
+  }
+
+  const { tipoDocumento, solicitudId } = req.body; //[cite: 7]
+  const archivo = req.file; //[cite: 7]
+  // ... (El resto de tu función de sanitización y carga se mantiene igual)[cite: 7]
   if (!archivo) return res.status(400).json({ error: 'No se envió ningún archivo físico.' });
 
   try {
