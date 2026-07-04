@@ -351,3 +351,40 @@ export async function deleteDocument(req, res) {
     return res.status(500).json({ error: 'Fallo interno al procesar la eliminación.' });
   }
 }
+
+// obtener el estado de la convocatoria
+export async function getConvocatoriaEstado(req, res) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('configuracion_sistema')
+      .select('convocatoria_activa')
+      .eq('id', 1)
+      .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    return res.status(200).json(data);
+  } catch (err) {
+    return res.status(500).json({ error: 'Error al consultar estado del sistema.' });
+  }
+}
+
+// Alternar el estado (Habilitar/Deshabilitar)
+export async function toggleConvocatoria(req, res) {
+  const { activa } = req.body;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('configuracion_sistema')
+      .update({ convocatoria_activa: activa, actualizado_at: new Date() })
+      .eq('id', 1)
+      .select()
+      .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    return res.status(200).json({ 
+      message: activa ? 'Convocatoria habilitada con éxito.' : 'Convocatoria congelada. Los aprendices no podrán subir más archivos.',
+      convocatoria_activa: data.convocatoria_activa 
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Error al cambiar la configuración.' });
+  }
+}
