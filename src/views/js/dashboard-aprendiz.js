@@ -12,12 +12,45 @@ const selectedFileName = document.getElementById('selected-file-name'); //
 const changeFileBtn = document.getElementById('change-file-btn'); //
 const submitBtn = document.getElementById('submit-upload-btn'); //
 
-async function inicializarDashboard() { //
+async function inicializarDashboard() { //[cite: 8]
     try {
-        const data = await API.request('/apprentice/dashboard'); //
-        
-        // Renderizar estados de la solicitud general
-        const estadoBadge = document.getElementById('estado-postulacion'); //
+        // 🚀 NUEVO: Consultar primero al endpoint público/admin si el módulo está congelado
+        const configRes = await API.request('/admin/convocatoria-estado');
+        const uploadForm = document.getElementById('upload-form'); //
+        const dropZoneContainer = document.getElementById('drop-zone'); //[cite: 9]
+
+        if (configRes && !configRes.convocatoria_activa) {
+            // CONVOCATORIA EXPIRADA: Congelamos el formulario por completo
+            if (uploadForm) {
+                // Deshabilitamos el select y bloqueamos el click
+                document.getElementById('tipo-doc').disabled = true; //[cite: 9]
+                
+                // Reemplazamos el área de arrastre por un aviso institucional de bloqueo
+                dropZoneContainer.style.backgroundColor = "#FFEAEA";
+                dropZoneContainer.style.border = "2px dashed #C62828";
+                dropZoneContainer.style.cursor = "not-allowed";
+                dropZoneContainer.style.pointerEvents = "none"; // Deshabilita clicks mecánicos
+                
+                document.getElementById('drop-zone-content').innerHTML = `
+                    <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">🔒</span>
+                    <p style="margin: 0; font-size: 1.2rem; color: #C62828; font-weight: bold;">
+                        La convocatoria se encuentra CERRADA
+                    </p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #555;">
+                        El plazo de recepción de documentos ha expirado o no hay procesos vigentes de selección en este momento. Comunícate con Bienestar al Aprendiz.
+                    </p>
+                `;
+            }
+        } else {
+            // Si está activa, nos aseguramos de habilitar las propiedades si venían bloqueadas
+            const tipoDoc = document.getElementById('tipo-doc');
+            if (tipoDoc) tipoDoc.disabled = false;
+        }
+
+        // ... TODO EL RESTO DE TU LÓGICA EXISTENTE DE RENDERIZADO SIGUE EXACTAMENTE IGUAL ...[cite: 8]
+        const data = await API.request('/apprentice/dashboard'); //[cite: 8]
+        const estadoBadge = document.getElementById('estado-postulacion'); //[cite: 8]
+        // ... (etc.)[cite: 8]
         estadoBadge.innerText = data.solicitud.estado; //
         estadoBadge.className = `status-badge status-${data.solicitud.estado}`; //
         document.getElementById('obs-generales').innerText = data.solicitud.observaciones_generales || 'Sin observaciones.'; //
