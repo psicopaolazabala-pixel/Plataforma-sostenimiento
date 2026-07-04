@@ -396,7 +396,65 @@ document.getElementById('form-nuevo-admin').addEventListener('submit', async (e)
     }
 });
 
+let convocatoriaActivaGlobal = true;
+
+async function verificarEstadoConvocatoriaAdmin() {
+    const btnToggle = document.getElementById('btn-toggle-convocatoria');
+    const banner = document.getElementById('banner-control-convocatoria');
+    if (!btnToggle) return;
+
+    try {
+        const res = await API.request('/admin/convocatoria-estado');
+        convocatoriaActivaGlobal = res.convocatoria_activa;
+
+        if (convocatoriaActivaGlobal) {
+            btnToggle.innerText = "🔒 Congelar Módulo Aprendices";
+            btnToggle.style.backgroundColor = "#D32F2F"; // Rojo para cerrar
+            banner.style.backgroundColor = "#E8F5E9"; // Verde de operativo
+            banner.style.borderLeft = "5px solid #23893E";
+            banner.querySelector('h3').style.color = "#23893E";
+            banner.querySelector('h3').innerText = "✅ Convocatoria Abierta";
+        } else {
+            btnToggle.innerText = "🔓 Abrir Nueva Convocatoria";
+            btnToggle.style.backgroundColor = "#23893E"; // Verde para abrir
+            banner.style.backgroundColor = "#FFEBEE"; // Rojo de bloqueado
+            banner.style.borderLeft = "5px solid #D32F2F";
+            banner.querySelector('h3').style.color = "#D32F2F";
+            banner.querySelector('h3').innerText = "🚫 Convocatoria Cerrada (Filtro Activo)";
+        }
+    } catch (e) {
+        console.error("Error al leer el estado del switch.");
+    }
+}
+
+// Evento de click para cambiar el estado
+document.getElementById('btn-toggle-convocatoria')?.addEventListener('click', async () => {
+    const btnToggle = document.getElementById('btn-toggle-convocatoria');
+    const proximoEstado = !convocatoriaActivaGlobal;
+
+    const msg = proximoEstado 
+        ? "¿Deseas habilitar la plataforma para que los aprendices vuelvan a adjuntar documentos?" 
+        : "⚠️ ¿Estás seguro de congelar la interfaz del aprendiz?\nNingún aspirante podrá cargar, modificar o reemplazar archivos hasta que vuelvas a abrir el ciclo.";
+    
+    if (!confirm(msg)) return;
+
+    btnToggle.disabled = true;
+    btnToggle.innerText = "⏳ Actualizando...";
+
+    const res = await API.request('/admin/convocatoria-toggle', {
+        method: 'POST',
+        body: { activa: proximoEstado }
+    });
+
+    alert(res.message);
+    btnToggle.disabled = false;
+    await verificarEstadoConvocatoriaAdmin();
+});
+
 window.onload = () => {
     renderizarEstadisticas(); // Carga las tarjetas numéricas superiores
     cargarPostulaciones();    // Carga la tabla inferior
+    
+    // 🚀 NUEVO: Sincroniza el banner de control de la convocatoria al abrir la página
+    verificarEstadoConvocatoriaAdmin(); 
 };
